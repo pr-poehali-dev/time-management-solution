@@ -156,7 +156,7 @@ const Index = () => {
                 <Icon name="Calendar" size={24} className="text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold tracking-tight">TimeFlow</h1>
+                <h1 className="text-2xl font-bold tracking-tight">FreeTime</h1>
                 <p className="text-sm text-muted-foreground">Управление временем для студентов</p>
               </div>
             </div>
