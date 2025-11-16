@@ -24,9 +24,34 @@ interface Task {
   tags: string[];
 }
 
+interface UserProfile {
+  name: string;
+  course: string;
+  avatar: string;
+}
+
+const avatars = [
+  { id: 'dog', emoji: '🐶', label: 'Собачка' },
+  { id: 'cat', emoji: '🐱', label: 'Кошечка' },
+  { id: 'penguin', emoji: '🐧', label: 'Пингвин' },
+  { id: 'parrot', emoji: '🦜', label: 'Попугай' }
+];
+
 const Index = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showTutorial, setShowTutorial] = useState(true);
+  const [showProfileSetup, setShowProfileSetup] = useState(true);
+  const [showProfileEdit, setShowProfileEdit] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile>({
+    name: '',
+    course: '',
+    avatar: 'dog'
+  });
+  const [tempProfile, setTempProfile] = useState<UserProfile>({
+    name: '',
+    course: '',
+    avatar: 'dog'
+  });
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newTask, setNewTask] = useState<Partial<Task>>({
@@ -140,9 +165,178 @@ const Index = () => {
     format(task.dueDate, 'yyyy-MM-dd') === format(selectedDate || new Date(), 'yyyy-MM-dd')
   );
 
+  const handleProfileSetup = () => {
+    if (!tempProfile.name || !tempProfile.course) return;
+    setUserProfile(tempProfile);
+    setShowProfileSetup(false);
+  };
+
+  const handleProfileEdit = () => {
+    setUserProfile(tempProfile);
+    setShowProfileEdit(false);
+  };
+
+  const openProfileEdit = () => {
+    setTempProfile(userProfile);
+    setShowProfileEdit(true);
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      {showTutorial && tasks.length === 0 && (
+      {showProfileSetup && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <Card className="max-w-md w-full p-8 relative">
+            <div className="text-center space-y-6">
+              <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto text-4xl">
+                {avatars.find(a => a.id === tempProfile.avatar)?.emoji}
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold mb-2">Добро пожаловать!</h2>
+                <p className="text-muted-foreground">Давайте настроим ваш профиль</p>
+              </div>
+              
+              <div className="space-y-4 text-left">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Ваше имя</label>
+                  <Input
+                    placeholder="Введите имя"
+                    value={tempProfile.name}
+                    onChange={(e) => setTempProfile({ ...tempProfile, name: e.target.value })}
+                  />
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Курс</label>
+                  <Select
+                    value={tempProfile.course}
+                    onValueChange={(value) => setTempProfile({ ...tempProfile, course: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Выберите курс" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 курс</SelectItem>
+                      <SelectItem value="2">2 курс</SelectItem>
+                      <SelectItem value="3">3 курс</SelectItem>
+                      <SelectItem value="4">4 курс</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Выберите аватар</label>
+                  <div className="grid grid-cols-4 gap-3">
+                    {avatars.map((avatar) => (
+                      <button
+                        key={avatar.id}
+                        onClick={() => setTempProfile({ ...tempProfile, avatar: avatar.id })}
+                        className={`p-4 rounded-xl border-2 transition-all hover:scale-105 ${
+                          tempProfile.avatar === avatar.id
+                            ? 'border-primary bg-primary/10'
+                            : 'border-muted hover:border-primary/50'
+                        }`}
+                      >
+                        <div className="text-3xl">{avatar.emoji}</div>
+                        <div className="text-xs mt-1 text-muted-foreground">{avatar.label}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              <Button
+                onClick={handleProfileSetup}
+                disabled={!tempProfile.name || !tempProfile.course}
+                className="w-full"
+                size="lg"
+              >
+                Продолжить
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {showProfileEdit && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <Card className="max-w-md w-full p-8 relative">
+            <button
+              onClick={() => setShowProfileEdit(false)}
+              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Icon name="X" size={20} />
+            </button>
+            <div className="text-center space-y-6">
+              <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto text-4xl">
+                {avatars.find(a => a.id === tempProfile.avatar)?.emoji}
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold mb-2">Редактировать профиль</h2>
+              </div>
+              
+              <div className="space-y-4 text-left">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Ваше имя</label>
+                  <Input
+                    placeholder="Введите имя"
+                    value={tempProfile.name}
+                    onChange={(e) => setTempProfile({ ...tempProfile, name: e.target.value })}
+                  />
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Курс</label>
+                  <Select
+                    value={tempProfile.course}
+                    onValueChange={(value) => setTempProfile({ ...tempProfile, course: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 курс</SelectItem>
+                      <SelectItem value="2">2 курс</SelectItem>
+                      <SelectItem value="3">3 курс</SelectItem>
+                      <SelectItem value="4">4 курс</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Выберите аватар</label>
+                  <div className="grid grid-cols-4 gap-3">
+                    {avatars.map((avatar) => (
+                      <button
+                        key={avatar.id}
+                        onClick={() => setTempProfile({ ...tempProfile, avatar: avatar.id })}
+                        className={`p-4 rounded-xl border-2 transition-all hover:scale-105 ${
+                          tempProfile.avatar === avatar.id
+                            ? 'border-primary bg-primary/10'
+                            : 'border-muted hover:border-primary/50'
+                        }`}
+                      >
+                        <div className="text-3xl">{avatar.emoji}</div>
+                        <div className="text-xs mt-1 text-muted-foreground">{avatar.label}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              <Button
+                onClick={handleProfileEdit}
+                disabled={!tempProfile.name || !tempProfile.course}
+                className="w-full"
+                size="lg"
+              >
+                Сохранить
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {showTutorial && tasks.length === 0 && !showProfileSetup && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <Card className="max-w-md w-full p-8 relative animate-in fade-in zoom-in duration-300">
             <button
@@ -211,7 +405,20 @@ const Index = () => {
                 <p className="text-sm text-muted-foreground">Управление временем для студентов</p>
               </div>
             </div>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={openProfileEdit}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted transition-colors"
+              >
+                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-xl">
+                  {avatars.find(a => a.id === userProfile.avatar)?.emoji}
+                </div>
+                <div className="text-left hidden sm:block">
+                  <div className="text-sm font-medium">{userProfile.name}</div>
+                  <div className="text-xs text-muted-foreground">{userProfile.course} курс</div>
+                </div>
+              </button>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="gap-2 shadow-sm hover:shadow-md transition-all">
                   <Icon name="Plus" size={18} />
