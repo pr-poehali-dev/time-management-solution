@@ -25,38 +25,8 @@ interface Task {
 }
 
 const Index = () => {
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: '1',
-      title: 'Подготовить презентацию',
-      description: 'Создать слайды для защиты курсовой работы',
-      priority: 'high',
-      category: 'Учеба',
-      dueDate: addDays(new Date(), 2),
-      completed: false,
-      tags: ['презентация', 'курсовая']
-    },
-    {
-      id: '2',
-      title: 'Решить задачи по математике',
-      description: 'Главы 5-7, упражнения 12-20',
-      priority: 'medium',
-      category: 'Домашка',
-      dueDate: addDays(new Date(), 5),
-      completed: false,
-      tags: ['математика']
-    },
-    {
-      id: '3',
-      title: 'Прочитать статью',
-      description: 'Материалы для эссе по философии',
-      priority: 'low',
-      category: 'Чтение',
-      dueDate: addDays(new Date(), 7),
-      completed: true,
-      tags: ['философия', 'эссе']
-    }
-  ]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [showTutorial, setShowTutorial] = useState(true);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newTask, setNewTask] = useState<Partial<Task>>({
@@ -69,6 +39,30 @@ const Index = () => {
   });
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [tutorialStep, setTutorialStep] = useState(0);
+
+  const tutorialSteps = [
+    {
+      title: 'Добро пожаловать в FreeTime!',
+      description: 'Ваш персональный менеджер задач для эффективного управления временем.',
+      icon: 'Sparkles'
+    },
+    {
+      title: 'Создавайте задачи',
+      description: 'Нажмите кнопку "Новая задача", чтобы добавить дела с приоритетами и дедлайнами.',
+      icon: 'Plus'
+    },
+    {
+      title: 'Календарь',
+      description: 'Просматривайте все задачи в календаре и планируйте свое время визуально.',
+      icon: 'Calendar'
+    },
+    {
+      title: 'Статистика',
+      description: 'Отслеживайте прогресс по категориям и анализируйте свою продуктивность.',
+      icon: 'BarChart3'
+    }
+  ];
 
   const categories = ['Учеба', 'Домашка', 'Проект', 'Чтение', 'Спорт', 'Личное'];
   
@@ -148,6 +142,63 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {showTutorial && tasks.length === 0 && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <Card className="max-w-md w-full p-8 relative animate-in fade-in zoom-in duration-300">
+            <button
+              onClick={() => setShowTutorial(false)}
+              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Icon name="X" size={20} />
+            </button>
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                <Icon name={tutorialSteps[tutorialStep].icon as any} size={32} className="text-primary" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold mb-2">{tutorialSteps[tutorialStep].title}</h2>
+                <p className="text-muted-foreground">{tutorialSteps[tutorialStep].description}</p>
+              </div>
+              <div className="flex gap-2 justify-center pt-4">
+                {tutorialSteps.map((_, index) => (
+                  <div
+                    key={index}
+                    className={`h-2 rounded-full transition-all ${
+                      index === tutorialStep ? 'w-8 bg-primary' : 'w-2 bg-muted'
+                    }`}
+                  />
+                ))}
+              </div>
+              <div className="flex gap-3 pt-4">
+                {tutorialStep > 0 && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setTutorialStep(tutorialStep - 1)}
+                    className="flex-1"
+                  >
+                    Назад
+                  </Button>
+                )}
+                {tutorialStep < tutorialSteps.length - 1 ? (
+                  <Button
+                    onClick={() => setTutorialStep(tutorialStep + 1)}
+                    className="flex-1"
+                  >
+                    Далее
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => setShowTutorial(false)}
+                    className="flex-1"
+                  >
+                    Начать работу
+                  </Button>
+                )}
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
